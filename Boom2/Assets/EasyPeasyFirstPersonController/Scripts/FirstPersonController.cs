@@ -23,6 +23,12 @@ namespace EasyPeasyFirstPersonController
         [Tooltip("Minimale Fall-Geschwindigkeit um Slow-Fall zu aktivieren")]
         public float minFallSpeedForSlowFall = -2f;
 
+        [Header("Time Slow Settings")]
+        [Tooltip("Globale Zeit-Skalierung, während Leertaste gehalten wird")]
+        public float timeSlowScale = 0.5f;
+        [Tooltip("Maximale Gesamtzeit in Sekunden, die Slow-Time genutzt werden darf (z.B. 300 = 5min)")]
+        public float maxSlowTimeSeconds = 300f;
+
         [Header("References")]
         public Transform playerCamera;
         public Transform cameraParent;
@@ -86,6 +92,11 @@ namespace EasyPeasyFirstPersonController
         public bool currentStateDebug = true;
         public bool showSlowFallDebug = false;
 
+        // Time slow runtime fields
+        [HideInInspector] public float remainingSlowTimeSeconds;
+        private bool timeSlowActive;
+        private float originalFixedDeltaTime;
+
         void OnGUI()
         {
             if (currentState != null && Application.isEditor && currentStateDebug)
@@ -96,6 +107,8 @@ namespace EasyPeasyFirstPersonController
                 GUILayout.Label("Current Gravity: " + currentGravity.ToString("F2"));
                 GUILayout.Label("Vertical Speed: " + moveDirection.y.ToString("F2"));
                 GUILayout.Label("Is Grounded: " + isGrounded);
+                GUILayout.Label("SlowTime Remaining (s): " + remainingSlowTimeSeconds.ToString("F1"));
+                GUILayout.Label("TimeSlow Active: " + timeSlowActive);
             }
         }
 
@@ -118,16 +131,54 @@ namespace EasyPeasyFirstPersonController
 
             currentState = states.Grounded();
             currentState.EnterState();
+
+            // Time slow initialization
+            remainingSlowTimeSeconds = maxSlowTimeSeconds;
+            originalFixedDeltaTime = Time.fixedDeltaTime;
+            timeSlowActive = false;
         }
 
         private void Update()
         {
+            // Time slow handling first so behavior in this frame uses the intended timescale
+            HandleTimeSlow();
+
             isGrounded = Physics.CheckSphere(groundCheck.position, 0.2f, groundMask, QueryTriggerInteraction.Ignore);
 
             HandleSlowFall();
             currentState.UpdateState();
             HandleRotation();
             UpdateVisuals();
+        }
+
+        private void HandleTimeSlow()
+        {
+            // Wenn Leertaste gehalten wird und noch Fuel vorhanden ist -> Zeit verlangsamen
+            bool wantSlow = input != null && input.jumpInput && remainingSlowTimeSeconds > 0f;
+
+            if (wantSlow)
+            {
+                timeSlowActive = true;
+                // Zeitverbrauch in Realzeit (unscaled), damit Time.timeScale die Verbrauchsrate nicht beeinflusst
+                remainingSlowTimeSeconds -= Time.unscaledDeltaTime;
+                if (remainingSlowTimeSeconds <= 0f)
+                {
+                    remainingSlowTimeSeconds = 0f;
+                    timeSlowActive = false;
+                }
+            }
+            else
+            {
+                timeSlowActive = false;
+            }
+
+            // Smoothes Lerp für angenehmere Übergänge
+            float targetScale = timeSlowActive ? timeSlowScale : 1f;
+            // Lerp basierend auf unscaledDeltaTime damit Übergang unabhängig von aktuellen timescale ist
+            Time.timeScale = Mathf.Lerp(Time.timeScale, targetScale, Time.unscaledDeltaTime * 8f);
+
+            // FixedDeltaTime anpassen um Physik stabil zu halten
+            Time.fixedDeltaTime = originalFixedDeltaTime * Time.timeScale;
         }
 
         private void HandleSlowFall()
@@ -235,6 +286,13 @@ namespace EasyPeasyFirstPersonController
             {
                 isInWater = false;
             }
+        }
+
+        private void OnDisable()
+        {
+            // Stelle sicher, dass beim Deaktivieren das TimeScale zurückgesetzt wird
+            Time.timeScale = 1f;
+            Time.fixedDeltaTime = originalFixedDeltaTime;
         }
     }
 }
