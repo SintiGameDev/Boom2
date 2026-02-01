@@ -93,17 +93,32 @@ namespace EasyPeasyFirstPersonController
             // Spawne das Projektil
             GameObject projectile = Instantiate(projectilePrefab, spawnPosition, playerCamera.rotation);
 
-            // F�ge Rigidbody hinzu falls nicht vorhanden
+            // Füge Rigidbody hinzu falls nicht vorhanden
             Rigidbody rb = projectile.GetComponent<Rigidbody>();
             if (rb == null)
             {
                 rb = projectile.AddComponent<Rigidbody>();
             }
 
+            // WICHTIG: Ignoriere Kollision zwischen Projektil und Spieler
+            Collider projectileCollider = projectile.GetComponent<Collider>();
+            Collider playerCollider = GetComponent<Collider>();
+
+            if (projectileCollider != null && playerCollider != null)
+            {
+                Physics.IgnoreCollision(projectileCollider, playerCollider, true);
+            }
+
+            // ZUSÄTZLICH: Ignoriere auch Character Controller
+            if (projectileCollider != null && fpsController != null && fpsController.characterController != null)
+            {
+                Physics.IgnoreCollision(projectileCollider, fpsController.characterController, true);
+            }
+
             // Setze Geschwindigkeit in Blickrichtung
             rb.linearVelocity = playerCamera.forward * projectileSpeed;
 
-            // Zerst�re das Projektil nach der Lebensdauer
+            // Zerstöre das Projektil nach der Lebensdauer
             if (projectileLifetime > 0)
             {
                 Destroy(projectile, projectileLifetime);
