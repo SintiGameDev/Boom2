@@ -23,6 +23,14 @@ namespace EasyPeasyFirstPersonController
         [Tooltip("Minimale Fall-Geschwindigkeit um Slow-Fall zu aktivieren")]
         public float minFallSpeedForSlowFall = -2f;
 
+        [Header("Fall FOV Settings")]
+        [Tooltip("Zusätzliches FOV beim schnellen Fallen")]
+        public float fallFovBoost = 20f;
+        [Tooltip("Minimale Fallgeschwindigkeit für FOV-Änderung")]
+        public float minFallSpeedForFov = 5f;
+        [Tooltip("Maximale Fallgeschwindigkeit für maximales FOV")]
+        public float maxFallSpeedForFov = 30f;
+
         [Header("Time Slow Settings")]
         [Tooltip("Globale Zeit-Skalierung, während Leertaste gehalten wird")]
         public float timeSlowScale = 0.5f;
@@ -79,6 +87,11 @@ namespace EasyPeasyFirstPersonController
         [Header("Ledge Settings")]
         public LayerMask ledgeLayer;
         public float ledgeDetectionDistance = 1f;
+
+        [Header("Ledge Ignore Tags")]
+        [Tooltip("Tags die als Ledge ignoriert werden sollen")]
+        public string[] ignoreLedgeTags = new string[] { "Dynamite", "Projectile" };
+
         private float landingMomentum;
 
         [Header("Swimming Settings")]
@@ -257,10 +270,10 @@ namespace EasyPeasyFirstPersonController
 
             if (Physics.Raycast(wallOrigin, transform.forward, out wallHit, ledgeDetectionDistance, ledgeLayer, QueryTriggerInteraction.Ignore))
             {
-                // NEUE PRÜFUNG: Ignoriere Objekte mit Tag "Dynamite"
-                if (wallHit.collider.CompareTag("Dynamite"))
+                // Prüfe ob das Objekt ignoriert werden soll
+                if (ShouldIgnoreLedge(wallHit.collider))
                 {
-                    return false; // Kein Ledge wenn es Dynamit ist
+                    return false;
                 }
 
                 Vector3 ledgeOrigin = wallOrigin + Vector3.up * 0.6f + transform.forward * 0.2f;
@@ -270,8 +283,8 @@ namespace EasyPeasyFirstPersonController
                 {
                     if (Physics.Raycast(ledgeOrigin + transform.forward * 0.4f, Vector3.down, out ledgeHit, 1f, groundMask))
                     {
-                        // ZUSÄTZLICHE PRÜFUNG: Auch hier Dynamit ignorieren
-                        if (ledgeHit.collider.CompareTag("Dynamite"))
+                        // Auch hier prüfen
+                        if (ShouldIgnoreLedge(ledgeHit.collider))
                         {
                             return false;
                         }
@@ -279,6 +292,19 @@ namespace EasyPeasyFirstPersonController
                         climbPosition = ledgeHit.point + Vector3.up * 1f;
                         return true;
                     }
+                }
+            }
+            return false;
+        }
+
+        // Hilfsmethode zum Prüfen ob ein Collider ignoriert werden soll
+        private bool ShouldIgnoreLedge(Collider col)
+        {
+            foreach (string tag in ignoreLedgeTags)
+            {
+                if (col.CompareTag(tag))
+                {
+                    return true;
                 }
             }
             return false;

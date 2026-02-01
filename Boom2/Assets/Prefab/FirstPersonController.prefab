@@ -224,6 +224,9 @@ MonoBehaviour:
   slowFallGravity: -2
   gravityTransitionSpeed: 1
   minFallSpeedForSlowFall: -2
+  fallFovBoost: 50
+  minFallSpeedForFov: 1
+  maxFallSpeedForFov: 2
   timeSlowScale: 0.5
   maxSlowTimeSeconds: 300
   playerCamera: {fileID: 9156347143994207885}
@@ -239,7 +242,7 @@ MonoBehaviour:
   normalFov: 60
   sprintFov: 70
   slideFovBoost: 5
-  fovChangeSpeed: 5
+  fovChangeSpeed: 1
   bobAmount: 0.001
   bobSpeed: 12
   recoilReturnSpeed: 5
@@ -258,6 +261,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   ledgeDetectionDistance: 1
+  ignoreLedgeTags:
+  - Dynamite
+  - Projectile
   swimSpeed: 4
   swimSprintSpeed: 6
   waterDrag: 2
