@@ -40,7 +40,7 @@ namespace EasyPeasyFirstPersonController
                 hasCollided = true;
                 HandlePlayerDeath(other.gameObject);
             }
-            else if (!hasCollided && CompareTag("Finish"))
+            else if (!hasCollided && CompareTag("Finish") && !other.CompareTag("Dynamite"))
             {
                 Debug.Log("Level Complete!");
                 hasCollided = true;
