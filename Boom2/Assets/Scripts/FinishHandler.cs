@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 namespace EasyPeasyFirstPersonController
 {
-    public class ObstacleCollision : MonoBehaviour
+    public class FinishHandler : MonoBehaviour
     {
         [Header("Collision Settings")]
         [Tooltip("Tag des Spielers (z.B. 'Player')")]
@@ -35,8 +35,14 @@ namespace EasyPeasyFirstPersonController
         private void OnTriggerEnter(Collider other)
         {
             // Alternative für Trigger-Collider
-            if (!hasCollided && other.CompareTag(playerTag) )
+            if (!hasCollided && other.CompareTag(playerTag) && !CompareTag("Finish"))
             {
+                hasCollided = true;
+                HandlePlayerDeath(other.gameObject);
+            }
+            else if (!hasCollided && CompareTag("Finish"))
+            {
+                Debug.Log("Level Complete!");
                 hasCollided = true;
                 HandlePlayerDeath(other.gameObject);
             }
