@@ -548,6 +548,9 @@ MonoBehaviour:
   projectileSpeed: 20
   projectileLifetime: 5
   spawnOffset: {x: 0, y: -0.2, z: 0.5}
+  fallRepulsionMultiplier: 2
+  minFallSpeedForRepulsion: 0.2
+  repulsionRandomness: 0.3
   fireRate: 0.5
   allowAutoFire: 0
   shootSound: {fileID: 0}
