@@ -28,7 +28,7 @@
             {
                 ctx.targetCameraY = ctx.standingCameraHeight - 0.2f;
 
-                if (ctx.input.jumpInput || ctx.input.moveInput.y > 0)  // GEÄNDERT: jump → jumpInput
+                if (ctx.input.jumpInput || ctx.input.moveInput.y > 0)
                     isClimbing = true;
 
                 if (ctx.input.crouch)

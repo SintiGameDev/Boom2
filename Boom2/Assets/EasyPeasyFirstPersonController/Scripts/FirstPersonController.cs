@@ -257,6 +257,12 @@ namespace EasyPeasyFirstPersonController
 
             if (Physics.Raycast(wallOrigin, transform.forward, out wallHit, ledgeDetectionDistance, ledgeLayer, QueryTriggerInteraction.Ignore))
             {
+                // NEUE PRÜFUNG: Ignoriere Objekte mit Tag "Dynamite"
+                if (wallHit.collider.CompareTag("Dynamite"))
+                {
+                    return false; // Kein Ledge wenn es Dynamit ist
+                }
+
                 Vector3 ledgeOrigin = wallOrigin + Vector3.up * 0.6f + transform.forward * 0.2f;
                 RaycastHit ledgeHit;
 
@@ -264,6 +270,12 @@ namespace EasyPeasyFirstPersonController
                 {
                     if (Physics.Raycast(ledgeOrigin + transform.forward * 0.4f, Vector3.down, out ledgeHit, 1f, groundMask))
                     {
+                        // ZUSÄTZLICHE PRÜFUNG: Auch hier Dynamit ignorieren
+                        if (ledgeHit.collider.CompareTag("Dynamite"))
+                        {
+                            return false;
+                        }
+
                         climbPosition = ledgeHit.point + Vector3.up * 1f;
                         return true;
                     }
