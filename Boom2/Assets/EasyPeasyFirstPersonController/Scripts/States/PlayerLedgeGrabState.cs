@@ -1,4 +1,4 @@
-namespace EasyPeasyFirstPersonController
+﻿namespace EasyPeasyFirstPersonController
 {
     using UnityEngine;
 
@@ -27,8 +27,12 @@ namespace EasyPeasyFirstPersonController
             if (!isClimbing)
             {
                 ctx.targetCameraY = ctx.standingCameraHeight - 0.2f;
-                if (ctx.input.jump || ctx.input.moveInput.y > 0) isClimbing = true;
-                if (ctx.input.crouch) SwitchState(factory.Fall());
+
+                if (ctx.input.jumpInput || ctx.input.moveInput.y > 0)  // GEÄNDERT: jump → jumpInput
+                    isClimbing = true;
+
+                if (ctx.input.crouch)
+                    SwitchState(factory.Fall());
             }
             else
             {
@@ -44,14 +48,11 @@ namespace EasyPeasyFirstPersonController
         {
             climbTimer += Time.deltaTime;
             float linearT = Mathf.Clamp01(climbTimer / climbDuration);
-
             float easedT = linearT * linearT * (3f - 2f * linearT);
-
             float heightArc = Mathf.Sin(linearT * Mathf.PI) * 0.4f;
 
             Vector3 targetHorizontal = new Vector3(targetPosition.x, startPosition.y, targetPosition.z);
             Vector3 currentPos = Vector3.Lerp(startPosition, targetHorizontal, easedT);
-
             float currentHeight = Mathf.Lerp(startPosition.y, targetPosition.y, easedT);
 
             ctx.transform.position = new Vector3(currentPos.x, currentHeight + heightArc, currentPos.z);

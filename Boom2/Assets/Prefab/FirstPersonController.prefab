@@ -220,6 +220,9 @@ MonoBehaviour:
   slideSpeed: 6
   mouseSensitivity: 2
   strafeTiltAmount: 2
+  slowFallGravity: -2
+  gravityTransitionSpeed: 1
+  minFallSpeedForSlowFall: -2
   playerCamera: {fileID: 9156347143994207885}
   cameraParent: {fileID: 9156347144824098802}
   groundCheck: {fileID: 9156347144365898843}
@@ -260,6 +263,7 @@ MonoBehaviour:
     m_Bits: 16
   isInWater: 0
   currentStateDebug: 1
+  showSlowFallDebug: 0
 --- !u!114 &256324496809331631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274,7 +278,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveInput: {x: 0, y: 0}
   lookInput: {x: 0, y: 0}
-  jump: 0
+  jumpInput: 1
   sprint: 0
   crouch: 0
   slide: 0

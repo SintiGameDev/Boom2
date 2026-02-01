@@ -1,4 +1,4 @@
-namespace EasyPeasyFirstPersonController
+﻿namespace EasyPeasyFirstPersonController
 {
     using UnityEngine;
 
@@ -18,7 +18,6 @@ namespace EasyPeasyFirstPersonController
         {
             HandleSwimMovement();
             CheckSwitchStates();
-
             ctx.targetCameraY = ctx.standingCameraHeight;
         }
 
@@ -47,11 +46,12 @@ namespace EasyPeasyFirstPersonController
             Vector3 horizontalMove = ctx.transform.right * input.x + ctx.transform.forward * input.y;
 
             float verticalInput = 0;
-            if (ctx.input.jump) verticalInput = 1f;
-            else if (ctx.input.crouch) verticalInput = -1f;
+            if (ctx.input.jumpInput)  // GEÄNDERT: jump → jumpInput
+                verticalInput = 1f;
+            else if (ctx.input.crouch)
+                verticalInput = -1f;
 
             Vector3 targetVelocity = (horizontalMove + Vector3.up * verticalInput).normalized * speed;
-
             ctx.moveDirection = Vector3.Lerp(ctx.moveDirection, targetVelocity, Time.deltaTime * ctx.waterDrag);
 
             ctx.characterController.Move(ctx.moveDirection * Time.deltaTime);

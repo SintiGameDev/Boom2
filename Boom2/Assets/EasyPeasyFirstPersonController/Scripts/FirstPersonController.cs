@@ -15,6 +15,14 @@ namespace EasyPeasyFirstPersonController
         public float mouseSensitivity = 2f;
         public float strafeTiltAmount = 2f;
 
+        [Header("Slow Fall Settings")]
+        [Tooltip("Reduzierte Schwerkraft beim Halten der Leertaste während des Falls")]
+        public float slowFallGravity = 3f;
+        [Tooltip("Wie schnell die Schwerkraft zwischen normal und slow wechselt")]
+        public float gravityTransitionSpeed = 5f;
+        [Tooltip("Minimale Fall-Geschwindigkeit um Slow-Fall zu aktivieren")]
+        public float minFallSpeedForSlowFall = -2f;
+
         [Header("References")]
         public Transform playerCamera;
         public Transform cameraParent;
@@ -31,6 +39,7 @@ namespace EasyPeasyFirstPersonController
         private float xRotation = 0f;
         private float currentTilt;
         private float tiltVelocity;
+        private float currentGravity;
 
         public PlayerBaseState CurrentState { get => currentState; set => currentState = value; }
 
@@ -75,11 +84,19 @@ namespace EasyPeasyFirstPersonController
 
         [Header("Debug")]
         public bool currentStateDebug = true;
+        public bool showSlowFallDebug = false;
 
         void OnGUI()
         {
             if (currentState != null && Application.isEditor && currentStateDebug)
                 GUILayout.Label("Current State: " + currentState.GetType().Name);
+
+            if (showSlowFallDebug && Application.isEditor)
+            {
+                GUILayout.Label("Current Gravity: " + currentGravity.ToString("F2"));
+                GUILayout.Label("Vertical Speed: " + moveDirection.y.ToString("F2"));
+                GUILayout.Label("Is Grounded: " + isGrounded);
+            }
         }
 
         private void Awake()
@@ -88,6 +105,7 @@ namespace EasyPeasyFirstPersonController
             targetFov = normalFov;
             targetCameraY = standingCameraHeight;
             originalCamY = standingCameraHeight;
+            currentGravity = gravity;
 
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -106,9 +124,31 @@ namespace EasyPeasyFirstPersonController
         {
             isGrounded = Physics.CheckSphere(groundCheck.position, 0.2f, groundMask, QueryTriggerInteraction.Ignore);
 
+            HandleSlowFall();
             currentState.UpdateState();
             HandleRotation();
             UpdateVisuals();
+        }
+
+        private void HandleSlowFall()
+        {
+            // Prüfe ob der Spieler fällt und nicht am Boden ist
+            bool isFalling = !isGrounded && moveDirection.y < minFallSpeedForSlowFall;
+
+            // Prüfe ob die Leertaste gehalten wird
+            bool slowFallActive = isFalling && input.jumpInput;
+
+            // Ziel-Schwerkraft basierend auf Slow-Fall Status
+            float targetGravity = slowFallActive ? slowFallGravity : gravity;
+
+            // Smooth Übergang zwischen normaler und reduzierter Schwerkraft
+            currentGravity = Mathf.Lerp(currentGravity, targetGravity, Time.deltaTime * gravityTransitionSpeed);
+        }
+
+        // Diese Methode kann von deinen States verwendet werden
+        public float GetCurrentGravity()
+        {
+            return currentGravity;
         }
 
         private void HandleRotation()
@@ -148,6 +188,7 @@ namespace EasyPeasyFirstPersonController
                 cameraParent.localPosition = new Vector3(cameraParent.localPosition.x, newY, cameraParent.localPosition.z);
             }
         }
+
         public bool HasCeiling()
         {
             float radius = characterController.radius * 0.9f;
@@ -156,6 +197,7 @@ namespace EasyPeasyFirstPersonController
 
             return Physics.SphereCast(origin, radius, Vector3.up, out _, checkDistance, groundMask, QueryTriggerInteraction.Ignore);
         }
+
         public bool CheckLedge(out Vector3 climbPosition)
         {
             climbPosition = Vector3.zero;
@@ -194,6 +236,5 @@ namespace EasyPeasyFirstPersonController
                 isInWater = false;
             }
         }
-
     }
 }

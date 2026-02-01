@@ -37,12 +37,12 @@ namespace EasyPeasyFirstPersonController
             {
                 SwitchState(factory.Swimming());
             }
-
         }
 
         private void ApplyGravity()
         {
-            ctx.moveDirection.y -= ctx.gravity * Time.deltaTime;
+            // Verwende die dynamische Schwerkraft vom Controller (berücksichtigt Slow-Fall)
+            ctx.moveDirection.y -= ctx.GetCurrentGravity() * Time.deltaTime;
             ctx.characterController.Move(new Vector3(0, ctx.moveDirection.y, 0) * Time.deltaTime);
         }
 

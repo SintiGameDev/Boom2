@@ -1,4 +1,4 @@
-namespace EasyPeasyFirstPersonController
+﻿namespace EasyPeasyFirstPersonController
 {
     using UnityEngine;
 
@@ -15,7 +15,6 @@ namespace EasyPeasyFirstPersonController
         public override void UpdateState()
         {
             CheckSwitchStates();
-
             ctx.targetCameraY = ctx.standingCameraHeight;
 
             bool isSprinting = ctx.input.sprint && ctx.input.moveInput.y > 0;
@@ -25,7 +24,6 @@ namespace EasyPeasyFirstPersonController
             ctx.currentBobIntensity = ctx.bobAmount * (isSprinting ? 1.5f : 1f);
             ctx.currentBobSpeed = ctx.bobSpeed * (isSprinting ? 1.3f : 1f);
             ctx.targetTilt = 0;
-
             ctx.targetCameraY = ctx.standingCameraHeight;
 
             ctx.characterController.height = Mathf.MoveTowards(
@@ -49,7 +47,7 @@ namespace EasyPeasyFirstPersonController
 
         public override void CheckSwitchStates()
         {
-            if (ctx.input.jump && ctx.isGrounded)
+            if (ctx.input.jumpInput && ctx.isGrounded)  // GEÄNDERT: jump → jumpInput
             {
                 SwitchState(factory.Jumping());
             }
@@ -69,7 +67,6 @@ namespace EasyPeasyFirstPersonController
             {
                 SwitchState(factory.Swimming());
             }
-
         }
     }
 }
