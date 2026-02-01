@@ -362,7 +362,7 @@ GameObject:
   - component: {fileID: 11709449}
   m_Layer: 0
   m_Name: Cube (5)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -14535,6 +14535,8 @@ MonoBehaviour:
   playerTag: Player
   restartDelay: 0
   freezeCameraOnDeath: 1
+  fadeDuration: 0.01
+  fadeColor: {r: 0, g: 0, b: 0, a: 1}
   deathSound: {fileID: 0}
 --- !u!65 &1190980070
 BoxCollider:
@@ -21073,7 +21075,7 @@ GameObject:
   - component: {fileID: 1726046877}
   m_Layer: 0
   m_Name: Cube (9)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -23974,7 +23976,7 @@ GameObject:
   - component: {fileID: 2025127889}
   m_Layer: 0
   m_Name: Cube (7)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -24730,7 +24732,7 @@ GameObject:
   - component: {fileID: 2132916256}
   m_Layer: 0
   m_Name: Cube (8)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

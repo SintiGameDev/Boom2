@@ -92,7 +92,10 @@ public class Projectile : MonoBehaviour
         }
 
         // Zerstöre Projektil sofort
-        Destroy(collision.gameObject);
+        if(collision.gameObject.tag != "Wall"){
+            Destroy(collision.gameObject);
+        }
+      
         Destroy(gameObject);
     }
 }
