@@ -389,6 +389,7 @@ GameObject:
   - component: {fileID: 9156347144040445544}
   - component: {fileID: 256324496809331631}
   - component: {fileID: 4580066110171263875}
+  - component: {fileID: 7859039959863835525}
   m_Layer: 2
   m_Name: FirstPersonController
   m_TagString: Player
@@ -553,6 +554,22 @@ MonoBehaviour:
   muzzleFlashEffect: {fileID: 0}
   muzzleFlashDuration: 0.1
   playerCamera: {fileID: 9156347143994207885}
+--- !u!114 &7859039959863835525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9156347144040445547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e572b13b0654e14d963999805d81fd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fpsController: {fileID: 9156347144040445544}
+  minFallSpeedForEffect: 1
+  maxFallSpeedForEffect: 30
+  maxVignetteIntensity: 0.2
 --- !u!1 &9156347144365898844
 GameObject:
   m_ObjectHideFlags: 0
