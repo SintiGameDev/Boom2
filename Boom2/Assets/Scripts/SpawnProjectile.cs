@@ -18,8 +18,19 @@ namespace EasyPeasyFirstPersonController
         [Tooltip("Offset von der Kamera aus (x=rechts, y=hoch, z=vorne)")]
         public Vector3 spawnOffset = new Vector3(0, -0.2f, 0.5f);
 
+        [Header("Fall-Abstoßung")]
+        [Tooltip("Multiplizier für die Abstoßungskraft basierend auf Fallgeschwindigkeit")]
+        public float fallRepulsionMultiplier = 0.5f;
+
+        [Tooltip("Minimale Fallgeschwindigkeit bevor Abstoßung aktiv wird")]
+        public float minFallSpeedForRepulsion = 5f;
+
+        [Tooltip("Zufälligkeit der Abstoßrichtung (0 = gerade weg, 1 = sehr zufällig)")]
+        [Range(0f, 1f)]
+        public float repulsionRandomness = 0.3f;
+
         [Header("Schuss Einstellungen")]
-        [Tooltip("Verz�gerung zwischen Sch�ssen in Sekunden")]
+        [Tooltip("Verzögerung zwischen Schüssen in Sekunden")]
         public float fireRate = 0.5f;
 
         [Tooltip("Kann der Spieler halten um zu feuern?")]
@@ -55,7 +66,7 @@ namespace EasyPeasyFirstPersonController
                 playerCamera = fpsController.playerCamera;
             }
 
-            // AudioSource f�r Sound-Effekte
+            // AudioSource für Sound-Effekte
             audioSource = GetComponent<AudioSource>();
             if (audioSource == null && shootSound != null)
             {
@@ -72,7 +83,7 @@ namespace EasyPeasyFirstPersonController
 
         void Update()
         {
-            // Pr�fe ob geschossen werden soll
+            // Prüfe ob geschossen werden soll
             bool wantsToShoot = allowAutoFire ? Input.GetMouseButton(0) : Input.GetMouseButtonDown(0);
 
             if (wantsToShoot && Time.time >= nextFireTime && projectilePrefab != null)
@@ -115,8 +126,45 @@ namespace EasyPeasyFirstPersonController
                 Physics.IgnoreCollision(projectileCollider, fpsController.characterController, true);
             }
 
-            // Setze Geschwindigkeit in Blickrichtung
-            rb.linearVelocity = playerCamera.forward * projectileSpeed;
+            // BERECHNE GESCHWINDIGKEIT MIT FALL-ABSTOSUNG
+            Vector3 shootDirection = playerCamera.forward;
+            float baseSpeed = projectileSpeed;
+
+            // Hole Fallgeschwindigkeit vom FPS Controller
+            if (fpsController != null)
+            {
+                float fallSpeed = Mathf.Abs(fpsController.moveDirection.y);
+
+                // Nur wenn schnell genug gefallen wird
+                if (fallSpeed > minFallSpeedForRepulsion && !fpsController.isGrounded)
+                {
+                    // Berechne Abstoßkraft basierend auf Fallgeschwindigkeit
+                    float repulsionForce = fallSpeed * fallRepulsionMultiplier;
+
+                    // Berechne Richtung von Spieler zum Projektil (radialer Vektor)
+                    Vector3 playerToProjectile = (spawnPosition - transform.position).normalized;
+
+                    // Füge Zufälligkeit hinzu für mehr Variation
+                    Vector3 randomOffset = new Vector3(
+                        Random.Range(-repulsionRandomness, repulsionRandomness),
+                        Random.Range(-repulsionRandomness, repulsionRandomness),
+                        Random.Range(-repulsionRandomness, repulsionRandomness)
+                    );
+
+                    Vector3 repulsionDirection = (playerToProjectile + randomOffset).normalized;
+
+                    // Kombiniere Schuss-Richtung mit Abstoßung
+                    shootDirection = (shootDirection.normalized * baseSpeed + repulsionDirection * repulsionForce).normalized;
+
+                    // Erhöhe Geschwindigkeit leicht durch die Abstoßung
+                    baseSpeed += repulsionForce * 0.5f;
+
+                    Debug.Log($"Fall-Abstoßung aktiv! Fallspeed: {fallSpeed:F2}, Repulsion: {repulsionForce:F2}");
+                }
+            }
+
+            // Setze finale Geschwindigkeit
+            rb.linearVelocity = shootDirection * baseSpeed;
 
             // Zerstöre das Projektil nach der Lebensdauer
             if (projectileLifetime > 0)
@@ -138,7 +186,7 @@ namespace EasyPeasyFirstPersonController
             }
 
             // Debug Info
-            Debug.Log($"Projektil abgefeuert! Geschwindigkeit: {projectileSpeed}");
+            Debug.Log($"Projektil abgefeuert! Geschwindigkeit: {baseSpeed}");
         }
 
         // Optional: Visualisierung im Editor
@@ -154,6 +202,13 @@ namespace EasyPeasyFirstPersonController
 
                 Gizmos.DrawWireSphere(spawnPos, 0.1f);
                 Gizmos.DrawRay(spawnPos, playerCamera.forward * 2f);
+
+                // Zeige Abstoßungsradius wenn gefallen wird
+                if (fpsController != null && !fpsController.isGrounded)
+                {
+                    Gizmos.color = Color.red;
+                    Gizmos.DrawWireSphere(transform.position, 2f);
+                }
             }
         }
     }
