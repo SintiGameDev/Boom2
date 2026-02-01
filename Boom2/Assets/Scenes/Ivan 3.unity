@@ -14,7 +14,7 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 1
+  m_Fog: 0
   m_FogColor: {r: 0.7028302, g: 0.9941195, b: 1, a: 1}
   m_FogMode: 1
   m_FogDensity: 0.01
@@ -14535,6 +14535,8 @@ MonoBehaviour:
   playerTag: Player
   restartDelay: 0
   freezeCameraOnDeath: 1
+  fadeDuration: 0.01
+  fadeColor: {r: 0, g: 0, b: 0, a: 1}
   deathSound: {fileID: 0}
 --- !u!65 &1190980070
 BoxCollider:
