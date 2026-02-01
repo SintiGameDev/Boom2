@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Undefined
   - Dynamite
+  - Points
   layers:
   - Default
   - TransparentFX

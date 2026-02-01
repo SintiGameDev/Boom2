@@ -1,4 +1,6 @@
+using Hanzzz.MeshDemolisher;
 using UnityEngine;
+using System.Collections.Generic; // Wichtig für List<>
 
 public class Projectile : MonoBehaviour
 {
@@ -17,6 +19,9 @@ public class Projectile : MonoBehaviour
     // Verhindert mehrfache Explosion
     private bool hasExploded = false;
 
+    // Material für die Innenseiten
+    public Material interiorMaterial;
+
     private void OnCollisionEnter(Collision collision)
     {
         // Wenn bereits explodiert, ignoriere weitere Kollisionen
@@ -29,11 +34,38 @@ public class Projectile : MonoBehaviour
         if (ignorePlayer && collision.gameObject.CompareTag(playerTag))
         {
             Debug.Log("TNT ignoriert Kollision mit Spieler");
-            return; // Beende die Methode, keine Explosion
+            return;
         }
 
-        // Markiere als explodiert SOFORT (vor allen anderen Aktionen)
+        // Markiere als explodiert
         hasExploded = true;
+
+        MeshDemolisher meshDemolisher = new MeshDemolisher();
+
+        // Alle Objekte mit dem Tag "Points" finden
+        GameObject[] objs = GameObject.FindGameObjectsWithTag("Points");
+
+        // Erstelle eine neue Liste für die Transforms
+        List<Transform> breakPoints = new List<Transform>();
+
+        // Füge alle gefundenen Punkte der Liste hinzu
+        if (objs.Length > 0)
+        {
+            foreach (GameObject obj in objs)
+            {
+                breakPoints.Add(obj.transform);
+            }
+        }
+        else
+        {
+            // Fallback: Wenn keine Punkte gefunden wurden, nimm die eigene Position
+            breakPoints.Add(transform);
+        }
+
+        // KORREKTER AUFRUF: Wir übergeben die Liste
+        //meshDemolisher.Demolish(collision.gameObject, breakPoints, interiorMaterial);
+
+        // HIER WAR DER FEHLER: Die alte, falsche Zeile wurde entfernt.
 
         // Deaktiviere Collider um weitere Kollisionen zu verhindern
         Collider col = GetComponent<Collider>();
@@ -60,6 +92,7 @@ public class Projectile : MonoBehaviour
         }
 
         // Zerstöre Projektil sofort
+        Destroy(collision.gameObject);
         Destroy(gameObject);
     }
 }
